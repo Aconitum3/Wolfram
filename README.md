@@ -8,7 +8,12 @@
 ## 目次
 
 ### [Wolfram KernelをJupyter Labから扱う](jupyter/README.md)
-
+ * 環境構築の流れ
+   * リポジトリのクローン
+   * Wolfram Engineアカウントのアクティベート
+   * Jupyter Labの起動 
+ * 各要素の説明
+ 
 
 ### [RからWolframを評価する](r/README.md)
  * 環境構築の流れ
