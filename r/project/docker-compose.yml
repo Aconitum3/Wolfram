@@ -1,0 +1,16 @@
+version: "2"
+services:
+  jupyter:
+    build:
+     context: Jupyter
+     dockerfile: Dockerfile
+    volumes:
+      - ./mountpoint:/home/mountpoint
+    ports:
+      - "8888:8888"
+  wstp:
+    build:
+      context: Wstp
+      dockerfile: Dockerfile
+    volumes:
+      - ./Licensing:/root/.WolframEngine/Licensing

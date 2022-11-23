@@ -1,0 +1,9 @@
+version: "2"
+services:
+  init:
+    build:
+      context: Wstp
+      dockerfile: Dockerfile-init
+    tty: true
+    volumes:
+      - ./Licensing:/root/.WolframEngine/Licensing
