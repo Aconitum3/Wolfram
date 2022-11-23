@@ -8,7 +8,7 @@
 $ git clone https://github.com/Aconitum3/Wolfram
 ```
 
-### Wolfram Engineアカウントのアクティベート
+### Wolfram Engineアカウントのアクティベート(コンテナ初回起動時のみ)
 Wolfram Engineのアクティベートのために、initコンテナを用意している。次のコマンドを実行して、initコンテナに接続する。
 ```bash
 $ cd Wolfram/r/project
