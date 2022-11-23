@@ -1,0 +1,11 @@
+version: "2"
+services:
+  wolfram:
+    build:
+     context: .
+     dockerfile: Dockerfile
+    volumes:
+      - ./mountpoint:/home/mountpoint
+      - ./Licensing:/root/.WolframEngine/Licensing
+    ports:
+      - "8888:8888"
