@@ -48,4 +48,75 @@ $ docker-compose up
 ここまでの手順がうまく行っていれば、Launcher画面でWolfram Language 13が選択できるはずだ。
 
 ## 各要素の説明
-作成中...
+本環境は、Mathematicaの開発元であるWolfram ResearchがDocker Hubで公開している[wolframresearch/wolframengine](https://hub.docker.com/r/wolframresearch/wolframengine)イメージを元にしている。
+
+本節ではDockerfileとdocker-compose.ymlの詳しい内容を説明する。
+### ディレクトリ構成
+```
+project/
+　├ Dockerfile
+　├ docker-compose.yml
+　├ requirements.txt
+　├ Licensing/
+　└ mountpoint/
+```
+
+### `Dockerfile`
+
+```Dockerfile
+FROM wolframresearch/wolframengine:13.0.1
+
+USER root
+
+COPY requirements.txt ./
+RUN pip install --upgrade pip \
+  && pip install -r requirements.txt
+
+RUN apt-get update && apt-get install -y git \
+  && git clone https://github.com/WolframResearch/WolframLanguageForJupyter.git \
+  && mkdir /home/mountpoint
+
+WORKDIR /home/mountpoint
+
+EXPOSE 8888
+
+CMD jupyter lab --ip=0.0.0.0 --port=8888 --allow-root
+```
+各コマンドについて順に説明する。
+
+#### `USER root`
+元イメージがuserをwolframengineにしており、そのままでは`apt-get`コマンドなどで権限エラーが起きるため、ユーザーをrootに変更している。
+#### `RUN pip install ...`
+Jupyter Labをインストールしている。`requirements.txt`は次のようになっている。
+```
+jupyterlab
+matplotlib
+numpy
+pandas
+```
+`jupyterlab`以外はインストールしなくてもよいが、よく使われるパッケージであるためインストールしている。
+####   `RUN apt-get update ...`
+Wolfram ResearchがGitHubで公開している、Jupyterで動作するWolfram kernelのリポジトリ[WolframLanguageForJupyter](https://github.com/WolframResearch/WolframLanguageForJupyter)をクローンしている。コンテナ起動前は、Wolfram Engineのアクティベートがされていない。そのため、クローンしたプログラムの実行は、コンテナに接続して、アクティベートを済ませてから行う。
+
+#### `CMD jupyter lab ...`
+ROOT Processに`jupyer lab`を指定している。ROOT Processとは、コンテナ上で最初に実行されるプログラムである。ROOT Processが終了すると、コンテナは停止する。
+
+ここで、Dockerでは`0.0.0.0`でサーバーを起動しないと、コンテナ外からアクセスできない。また、`--allow-root`を指定しないと、rootユーザーがアクセスできなくなる。
+
+### `docker-compose.yml`
+```yaml
+version: "2"
+services:
+  wolfram:
+    build:
+     context: .
+     dockerfile: Dockerfile
+    volumes:
+      - ./mountpoint:/home/mountpoint
+      - ./Licensing:/root/.WolframEngine/Licensing
+    ports:
+      - "8888:8888"
+```
+作業ディレクトリ`/home/mountpoint`をローカルディレクトリ`./mountpoint`にマウントしている。
+
+また、Wolfram Engineをrootユーザーでアクティベートした場合、ライセンス情報が`mathpass`として、`/root/.WolframEngine/Licensing/`に保存される。2回目以降のアクティベートを省略するために、ライセンス情報をローカルで管理できるようにしている。
